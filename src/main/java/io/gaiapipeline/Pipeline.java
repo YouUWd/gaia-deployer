@@ -1,67 +1,63 @@
 package io.gaiapipeline;
 
-import io.gaiapipeline.javasdk.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import io.gaiapipeline.javasdk.Handler;
+import io.gaiapipeline.javasdk.InputType;
+import io.gaiapipeline.javasdk.Javasdk;
+import io.gaiapipeline.javasdk.PipelineArgument;
+import io.gaiapipeline.javasdk.PipelineJob;
+import utils.CommandResult;
+import utils.CommandUtil;
+
 public class Pipeline {
 	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
 
-	//下载代码
-	private static Handler Download = (gaiaArgs) -> {
-		LOGGER.info("Download project started!");
-		Thread.sleep(5000);
-		LOGGER.info("Download project finished!");
-	};
-	//适配代码和环境
-	private static Handler Fit = (gaiaArgs) -> {
-		LOGGER.info("Fit project started!");
-		Thread.sleep(5000);
-		LOGGER.info("Fit project finished!");
-	};
-
-	//启动(重启)
-	private static Handler Start = (gaiaArgs) -> {
-		LOGGER.info("Start project started!");
-		Thread.sleep(5000);
-		LOGGER.info("Start project finished!");
-	};
-	//清理
-	private static Handler Cleanup = (gaiaArgs) -> {
-		LOGGER.info("Cleanup has been started!");
-		Thread.sleep(5000);
-		LOGGER.info("Cleanup has been finished!");
+	private static Handler MyAwesomeJob = (gaiaArgs) -> {
+		for (PipelineArgument arg : gaiaArgs) {
+			LOGGER.info("Key: " + arg.getKey() + "; Value: " + arg.getValue());
+		}
+		CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
+			gaiaArgs.get(2).getValue(),
+			gaiaArgs.get(3).getValue());
+		LOGGER.info("Result:" + result);
 	};
 
 	public static void main(String[] args) {
-		PipelineJob download = new PipelineJob();
-		download.setTitle("下载代码");
-		download.setDescription("下载项目代码。");
-		download.setHandler(Download);
+		PipelineJob myjob = new PipelineJob();
+		myjob.setTitle("命令通道");
+		myjob.setDescription("在指定机器上执行指令。");
+		myjob.setHandler(MyAwesomeJob);
 
-		PipelineJob fit = new PipelineJob();
-		fit.setTitle("适配环境");
-		fit.setDescription("适配环境信息。");
-		fit.setHandler(Fit);
-		fit.setDependsOn(new ArrayList<>(Arrays.asList("下载代码")));
+		PipelineArgument vaultKey = new PipelineArgument();
+		vaultKey.setType(InputType.VaultInp);
+		vaultKey.setKey("key");
 
-		PipelineJob start = new PipelineJob();
-		start.setTitle("启动");
-		start.setDescription("启动或重启");
-		start.setHandler(Start);
-		start.setDependsOn(new ArrayList<>(Arrays.asList("适配环境")));
+		PipelineArgument vaultCode = new PipelineArgument();
+		vaultCode.setType(InputType.VaultInp);
+		vaultCode.setKey("code");
 
-		PipelineJob cleanup = new PipelineJob();
-		cleanup.setTitle("收尾");
-		cleanup.setDescription("收尾工作，检查是否发布成功。");
-		cleanup.setHandler(Cleanup);
-		cleanup.setDependsOn(new ArrayList<>(Arrays.asList("启动")));
+		PipelineArgument argUsernameIP = new PipelineArgument();
+		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
+		// for a text area or InputType.BoolInp for boolean input.
+		argUsernameIP.setType(InputType.TextFieldInp);
+		argUsernameIP.setKey("ip");
+		argUsernameIP.setDescription("输入指令执行机器:");
+
+		PipelineArgument argUsernameCmd = new PipelineArgument();
+		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
+		// for a text area or InputType.BoolInp for boolean input.
+		argUsernameCmd.setType(InputType.TextFieldInp);
+		argUsernameCmd.setKey("cmd");
+		argUsernameCmd.setDescription("输入指令:");
+
+		myjob.setArgs(new ArrayList<>(Arrays.asList(vaultKey, vaultCode, argUsernameIP, argUsernameCmd)));
 
 		Javasdk sdk = new Javasdk();
 		try {
-			sdk.Serve(new ArrayList<>(Arrays.asList(download, fit, start, cleanup)));
+			sdk.Serve(new ArrayList<>(Arrays.asList(myjob)));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
