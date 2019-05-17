@@ -32,7 +32,7 @@ public class CommandUtil {
 		String sign = Sign.buildSign(params, code);
 
 		String template
-			= "http://staragent.alibaba-inc.com/api/task?key=%s&ip=%s&exeurl=%s"
+			= "http://xxx/api/task?key=%s&ip=%s&exeurl=%s"
 			+ "&timestamp=%s&sign=%s";
 		String url = Strings.lenientFormat(template, key, ip, _cmd, timestamp, sign);
 
@@ -40,7 +40,7 @@ public class CommandUtil {
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
 		CloseableHttpResponse response = httpClient.execute(
-			new HttpGet("http://staragent.alibaba-inc.com/api/task?" + paramEncode(params) + "sign=" + sign));
+			new HttpGet("http://xxx/api/task?" + paramEncode(params) + "sign=" + sign));
 		String result = EntityUtils.toString(response.getEntity(), Consts.UTF_8);
 		CommandResult commandResult = GSON.fromJson(result, CommandResult.class);
 		return commandResult;
