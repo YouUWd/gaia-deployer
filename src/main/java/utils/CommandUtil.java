@@ -20,10 +20,6 @@ import org.joda.time.DateTime;
 public class CommandUtil {
 	private static final Gson GSON = new Gson();
 
-	public static void main(String[] args) throws Exception {
-		CommandUtil.exec("47240b4e268e940eeef33ab1b9d35e45", "16c7efe1c0e5e61c9c2c8bb124a1b339", "11.193.180.1",
-			"ls -la");
-	}
 
 	public static CommandResult exec(String key, String code, String ip, String cmd) throws Exception {
 		Map<String, String> params = Maps.newHashMap();
