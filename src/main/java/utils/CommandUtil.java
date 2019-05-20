@@ -20,8 +20,7 @@ import org.joda.time.DateTime;
 public class CommandUtil {
 	private static final Gson GSON = new Gson();
 
-
-	public static CommandResult exec(String key, String code, String ip, String cmd) throws Exception {
+	public static CommandResult exec(String domian, String key, String code, String ip, String cmd) throws Exception {
 		Map<String, String> params = Maps.newHashMap();
 		params.put("key", key);
 		params.put("ip", ip);
@@ -32,7 +31,7 @@ public class CommandUtil {
 		String sign = Sign.buildSign(params, code);
 
 		String template
-			= "http://xxx/api/task?key=%s&ip=%s&exeurl=%s"
+			= "http://" + domian + "/api/task?key=%s&ip=%s&exeurl=%s"
 			+ "&timestamp=%s&sign=%s";
 		String url = Strings.lenientFormat(template, key, ip, _cmd, timestamp, sign);
 
@@ -40,7 +39,7 @@ public class CommandUtil {
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
 		CloseableHttpResponse response = httpClient.execute(
-			new HttpGet("http://xxx/api/task?" + paramEncode(params) + "sign=" + sign));
+			new HttpGet("http://" + domian + "/api/task?" + paramEncode(params) + "sign=" + sign));
 		String result = EntityUtils.toString(response.getEntity(), Consts.UTF_8);
 		CommandResult commandResult = GSON.fromJson(result, CommandResult.class);
 		return commandResult;

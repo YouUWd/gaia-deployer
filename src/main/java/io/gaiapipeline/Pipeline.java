@@ -21,7 +21,7 @@ public class Pipeline {
 		}
 		CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 			gaiaArgs.get(2).getValue(),
-			gaiaArgs.get(3).getValue());
+			gaiaArgs.get(3).getValue(), gaiaArgs.get(4).getValue());
 		LOGGER.info("Result:" + result);
 	};
 
@@ -30,6 +30,10 @@ public class Pipeline {
 		myjob.setTitle("命令通道");
 		myjob.setDescription("在指定机器上执行指令。");
 		myjob.setHandler(MyAwesomeJob);
+
+		PipelineArgument vaultdomian = new PipelineArgument();
+		vaultdomian.setType(InputType.VaultInp);
+		vaultdomian.setKey("key");
 
 		PipelineArgument vaultKey = new PipelineArgument();
 		vaultKey.setType(InputType.VaultInp);
@@ -53,7 +57,7 @@ public class Pipeline {
 		argUsernameCmd.setKey("cmd");
 		argUsernameCmd.setDescription("输入指令:");
 
-		myjob.setArgs(new ArrayList<>(Arrays.asList(vaultKey, vaultCode, argUsernameIP, argUsernameCmd)));
+		myjob.setArgs(new ArrayList<>(Arrays.asList(vaultdomian, vaultKey, vaultCode, argUsernameIP, argUsernameCmd)));
 
 		Javasdk sdk = new Javasdk();
 		try {
