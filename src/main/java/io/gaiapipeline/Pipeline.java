@@ -31,9 +31,9 @@ public class Pipeline {
 		myjob.setDescription("在指定机器上执行指令。");
 		myjob.setHandler(MyAwesomeJob);
 
-		PipelineArgument vaultdomian = new PipelineArgument();
-		vaultdomian.setType(InputType.VaultInp);
-		vaultdomian.setKey("key");
+		PipelineArgument vaultDomain = new PipelineArgument();
+		vaultDomain.setType(InputType.VaultInp);
+		vaultDomain.setKey("domain");
 
 		PipelineArgument vaultKey = new PipelineArgument();
 		vaultKey.setType(InputType.VaultInp);
@@ -57,7 +57,7 @@ public class Pipeline {
 		argUsernameCmd.setKey("cmd");
 		argUsernameCmd.setDescription("输入指令:");
 
-		myjob.setArgs(new ArrayList<>(Arrays.asList(vaultdomian, vaultKey, vaultCode, argUsernameIP, argUsernameCmd)));
+		myjob.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP, argUsernameCmd)));
 
 		Javasdk sdk = new Javasdk();
 		try {
