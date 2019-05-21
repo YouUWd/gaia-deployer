@@ -3,6 +3,7 @@ package io.gaiapipeline;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import io.gaiapipeline.javasdk.Handler;
 import io.gaiapipeline.javasdk.InputType;
@@ -19,10 +20,20 @@ public class Pipeline {
 		for (PipelineArgument arg : gaiaArgs) {
 			LOGGER.info("Key: " + arg.getKey() + "; Value: " + arg.getValue());
 		}
-		CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
-			gaiaArgs.get(2).getValue(),
-			gaiaArgs.get(3).getValue(), gaiaArgs.get(4).getValue());
-		LOGGER.info("Result:" + result);
+
+		String[] ips = gaiaArgs.get(3).getValue().split(",");
+		Stream.of(ips).parallel().forEach(ip -> {
+			CommandResult result = null;
+			try {
+				result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
+					gaiaArgs.get(2).getValue(),
+					gaiaArgs.get(3).getValue(), gaiaArgs.get(4).getValue());
+			} catch (Exception e) {
+				LOGGER.info("ERROR: " + ip);
+			}
+			LOGGER.info(ip + " Result: " + result);
+		});
+
 	};
 
 	public static void main(String[] args) {
@@ -48,7 +59,7 @@ public class Pipeline {
 		// for a text area or InputType.BoolInp for boolean input.
 		argUsernameIP.setType(InputType.TextFieldInp);
 		argUsernameIP.setKey("ip");
-		argUsernameIP.setDescription("输入指令执行机器:");
+		argUsernameIP.setDescription("输入指令执行机器（多个ip使用英文,分割）:");
 
 		PipelineArgument argUsernameCmd = new PipelineArgument();
 		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
