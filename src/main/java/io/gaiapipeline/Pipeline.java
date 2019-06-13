@@ -107,7 +107,7 @@ public class Pipeline {
 		//job开始
 		PipelineJob checkout = new PipelineJob();
 		checkout.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
-		checkout.setTitle("更新代码");
+		checkout.setTitle("拉取代码");
 		checkout.setDescription("更新分支最新代码。");
 		checkout.setHandler(CheckoutHandler);
 
