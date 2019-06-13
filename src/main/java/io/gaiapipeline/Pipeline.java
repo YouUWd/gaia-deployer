@@ -3,45 +3,88 @@ package io.gaiapipeline;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import io.gaiapipeline.javasdk.Handler;
 import io.gaiapipeline.javasdk.InputType;
 import io.gaiapipeline.javasdk.Javasdk;
 import io.gaiapipeline.javasdk.PipelineArgument;
 import io.gaiapipeline.javasdk.PipelineJob;
-import utils.CommandResult;
 import utils.CommandUtil;
+import utils.Commands;
+import utils.ShellUtil;
 
+/**
+ * 代码部署工具
+ * 0、选择要发布的代码branch
+ * 1、前端打包
+ * 2、后端打包
+ * 3、上传war包
+ * 4、下载war包到目标机器
+ * 5、备份代码
+ * 6、替换代码
+ * 7、重启
+ * 8、验证是否正常启动
+ */
 public class Pipeline {
 	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
 
-	private static Handler MyAwesomeJob = (gaiaArgs) -> {
-		for (PipelineArgument arg : gaiaArgs) {
-			LOGGER.info("Key: " + arg.getKey() + "; Value: " + arg.getValue());
-		}
+	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
+		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
+			gaiaArgs.get(2).getValue(),
+			gaiaArgs.get(3).getValue(), cmd);
+	}
 
-		String[] ips = gaiaArgs.get(3).getValue().split(",");
-		Stream.of(ips).parallel().forEach(ip -> {
-			CommandResult result = null;
-			try {
-				result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
-					gaiaArgs.get(2).getValue(),
-					gaiaArgs.get(3).getValue(), gaiaArgs.get(4).getValue());
-			} catch (Exception e) {
-				LOGGER.info("ERROR: " + ip);
-			}
-			LOGGER.info(ip + " Result: " + result);
-		});
+	private static Handler CheckoutHandler = (gaiaArgs) -> {
+		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_checkout.sh");
+		LOGGER.info("CheckoutHandler DONE");
+	};
+	private static Handler NpmBuildHandler = (gaiaArgs) -> {
+		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_build.sh");
+		LOGGER.info("NpmBuildHandler DONE");
+	};
+
+	private static Handler MvnPackageHandler = (gaiaArgs) -> {
+		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_package.sh");
+		LOGGER.info("MvnPackageHandler DONE");
+	};
+	private static Handler UploadHandler = (gaiaArgs) -> {
+		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_upload.sh");
+		LOGGER.info("UploadHandler DONE");
+	};
+
+	private static Handler DownloadHandler = (gaiaArgs) -> {
+		execute(gaiaArgs, Commands.DOWNLOAD_BACKUP);
+
+		execute(gaiaArgs, Commands.DOWNLOAD_DEPLOY);
+
+		execute(gaiaArgs, Commands.DOWNLOAD_CHECK);
+
+		execute(gaiaArgs, Commands.DOWNLOAD_WAR);
+		LOGGER.info("DownloadHandler DONE");
+	};
+
+	private static Handler BackupHandler = (gaiaArgs) -> {
+		execute(gaiaArgs, Commands.BACKUP);
+		LOGGER.info("BackupHandler DONE");
+	};
+
+	private static Handler ReplaceHandler = (gaiaArgs) -> {
+		LOGGER.info("ReplaceHandler DONE");
+
+	};
+
+	private static Handler RestartHandler = (gaiaArgs) -> {
+		LOGGER.info("RestartHandler DONE");
+
+	};
+
+	private static Handler CheckHandler = (gaiaArgs) -> {
+		LOGGER.info("CheckHandler DONE");
 
 	};
 
 	public static void main(String[] args) {
-		PipelineJob myjob = new PipelineJob();
-		myjob.setTitle("命令通道");
-		myjob.setDescription("在指定机器上执行指令。");
-		myjob.setHandler(MyAwesomeJob);
-
+		//参数准备
 		PipelineArgument vaultDomain = new PipelineArgument();
 		vaultDomain.setType(InputType.VaultInp);
 		vaultDomain.setKey("domain");
@@ -61,18 +104,65 @@ public class Pipeline {
 		argUsernameIP.setKey("ip");
 		argUsernameIP.setDescription("输入指令执行机器（多个ip使用英文,分割）:");
 
-		PipelineArgument argUsernameCmd = new PipelineArgument();
-		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
-		// for a text area or InputType.BoolInp for boolean input.
-		argUsernameCmd.setType(InputType.TextFieldInp);
-		argUsernameCmd.setKey("cmd");
-		argUsernameCmd.setDescription("输入指令:");
+		//job开始
+		PipelineJob checkout = new PipelineJob();
+		checkout.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		checkout.setTitle("更新代码");
+		checkout.setDescription("更新分支最新代码。");
+		checkout.setHandler(CheckoutHandler);
 
-		myjob.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP, argUsernameCmd)));
+		PipelineJob npmBuild = new PipelineJob();
+		npmBuild.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		npmBuild.setTitle("编译前端");
+		npmBuild.setDescription("编译前端（npm run build）。");
+		npmBuild.setHandler(NpmBuildHandler);
+
+		PipelineJob mvnPackage = new PipelineJob();
+		mvnPackage.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		mvnPackage.setTitle("打包项目");
+		mvnPackage.setDescription("打包项目（mvn clean package）。");
+		mvnPackage.setHandler(MvnPackageHandler);
+
+		PipelineJob upload = new PipelineJob();
+		upload.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		upload.setTitle("上传WAR包");
+		upload.setDescription("上传WAR包到仓库。");
+		upload.setHandler(UploadHandler);
+
+		PipelineJob download = new PipelineJob();
+		download.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		download.setTitle("下载WAR包");
+		download.setDescription("下载WAR包到指定机器。");
+		download.setHandler(DownloadHandler);
+
+		PipelineJob backup = new PipelineJob();
+		backup.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		backup.setTitle("备份代码");
+		backup.setDescription("备份当前环境的运行代码。");
+		backup.setHandler(BackupHandler);
+
+		PipelineJob replace = new PipelineJob();
+		replace.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		replace.setTitle("更新代码");
+		replace.setDescription("更新当前机器运行的代码。");
+		replace.setHandler(ReplaceHandler);
+
+		PipelineJob restart = new PipelineJob();
+		restart.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		restart.setTitle("重启服务器");
+		restart.setDescription("重启服务器，加载最新代码。");
+		restart.setHandler(RestartHandler);
+
+		PipelineJob check = new PipelineJob();
+		check.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		check.setTitle("检查发布情况");
+		check.setDescription("检查代码是否成功发布。");
+		check.setHandler(CheckHandler);
 
 		Javasdk sdk = new Javasdk();
 		try {
-			sdk.Serve(new ArrayList<>(Arrays.asList(myjob)));
+			sdk.Serve(new ArrayList(
+				Arrays.asList(checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart, check)));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
