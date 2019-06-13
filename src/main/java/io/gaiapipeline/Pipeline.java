@@ -29,9 +29,10 @@ public class Pipeline {
 	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
 
 	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
+		System.out.println("=======" + gaiaArgs);
 		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 			gaiaArgs.get(2).getValue(),
-			gaiaArgs.get(3), cmd);
+			"", cmd);
 	}
 
 	private static Handler CheckoutHandler = (gaiaArgs) -> {
@@ -163,6 +164,7 @@ public class Pipeline {
 
 		Javasdk sdk = new Javasdk();
 		try {
+			sdk.Serve(new ArrayList(Arrays.asList(checkout)));
 			sdk.Serve(new ArrayList(
 				Arrays.asList(checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart, check)));
 		} catch (Exception ex) {
