@@ -164,7 +164,6 @@ public class Pipeline {
 
 		Javasdk sdk = new Javasdk();
 		try {
-			sdk.Serve(new ArrayList(Arrays.asList(checkout)));
 			sdk.Serve(new ArrayList(
 				Arrays.asList(checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart, check)));
 		} catch (Exception ex) {
