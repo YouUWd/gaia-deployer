@@ -31,7 +31,7 @@ public class Pipeline {
 	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
 		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 			gaiaArgs.get(2).getValue(),
-			gaiaArgs.get(3).getValue(), cmd);
+			gaiaArgs.get(3), cmd);
 	}
 
 	private static Handler CheckoutHandler = (gaiaArgs) -> {
@@ -104,57 +104,59 @@ public class Pipeline {
 		argUsernameIP.setKey("ip");
 		argUsernameIP.setDescription("输入指令执行机器（多个ip使用英文,分割）:");
 
+		String ip = argUsernameIP.getValue();
+
 		//job开始
 		PipelineJob checkout = new PipelineJob();
-		checkout.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		checkout.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		checkout.setTitle("拉取代码");
 		checkout.setDescription("更新分支最新代码。");
 		checkout.setHandler(CheckoutHandler);
 
 		PipelineJob npmBuild = new PipelineJob();
-		npmBuild.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		npmBuild.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		npmBuild.setTitle("编译前端");
 		npmBuild.setDescription("编译前端（npm run build）。");
 		npmBuild.setHandler(NpmBuildHandler);
 
 		PipelineJob mvnPackage = new PipelineJob();
-		mvnPackage.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		mvnPackage.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		mvnPackage.setTitle("打包项目");
 		mvnPackage.setDescription("打包项目（mvn clean package）。");
 		mvnPackage.setHandler(MvnPackageHandler);
 
 		PipelineJob upload = new PipelineJob();
-		upload.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		upload.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		upload.setTitle("上传WAR包");
 		upload.setDescription("上传WAR包到仓库。");
 		upload.setHandler(UploadHandler);
 
 		PipelineJob download = new PipelineJob();
-		download.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		download.setTitle("下载WAR包");
 		download.setDescription("下载WAR包到指定机器。");
 		download.setHandler(DownloadHandler);
 
 		PipelineJob backup = new PipelineJob();
-		backup.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		backup.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		backup.setTitle("备份代码");
 		backup.setDescription("备份当前环境的运行代码。");
 		backup.setHandler(BackupHandler);
 
 		PipelineJob replace = new PipelineJob();
-		replace.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		replace.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		replace.setTitle("更新代码");
 		replace.setDescription("更新当前机器运行的代码。");
 		replace.setHandler(ReplaceHandler);
 
 		PipelineJob restart = new PipelineJob();
-		restart.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		restart.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		restart.setTitle("重启服务器");
 		restart.setDescription("重启服务器，加载最新代码。");
 		restart.setHandler(RestartHandler);
 
 		PipelineJob check = new PipelineJob();
-		check.setArgs(new ArrayList<>(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		check.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, ip)));
 		check.setTitle("检查发布情况");
 		check.setDescription("检查代码是否成功发布。");
 		check.setHandler(CheckHandler);

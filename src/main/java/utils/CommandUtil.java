@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import io.gaiapipeline.javasdk.PipelineArgument;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.http.Consts;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,7 +21,7 @@ import org.joda.time.DateTime;
 public class CommandUtil {
 	private static final Gson GSON = new Gson();
 
-	public static CommandResult exec(String domian, String key, String code, String ip, String cmd) throws Exception {
+	public static CommandResult exec(String domian, String key, String code, PipelineArgument ip, String cmd) throws Exception {
 		Map<String, String> params = Maps.newHashMap();
 		params.put("key", key);
 		params.put("ip", ip);
