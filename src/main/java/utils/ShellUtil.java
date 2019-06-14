@@ -3,10 +3,8 @@ package utils;
 import java.io.File;
 import java.util.logging.Logger;
 
-import com.sun.xml.internal.ws.spi.db.BindingContextFactory;
-
 public class ShellUtil {
-	private static final Logger LOGGER = BindingContextFactory.LOGGER.getLogger(ShellUtil.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(ShellUtil.class.getName());
 
 	public static void exec(String cmd) throws Exception {
 		LOGGER.info("exec " + cmd);
