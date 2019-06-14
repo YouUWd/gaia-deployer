@@ -1,2 +1,2 @@
-# java-example
+# gaia-deployer
 Java Example Gaia Pipeline
