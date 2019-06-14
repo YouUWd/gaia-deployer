@@ -64,6 +64,15 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-common -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>4.1.36.Final</version>
+        </dependency>
+
+
+
         <!-- 日志 -->
         <dependency>
             <groupId>org.slf4j</groupId>
