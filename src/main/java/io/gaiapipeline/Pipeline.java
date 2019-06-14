@@ -2,13 +2,13 @@ package io.gaiapipeline;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 import io.gaiapipeline.javasdk.Handler;
 import io.gaiapipeline.javasdk.InputType;
 import io.gaiapipeline.javasdk.Javasdk;
 import io.gaiapipeline.javasdk.PipelineArgument;
 import io.gaiapipeline.javasdk.PipelineJob;
+import lombok.extern.slf4j.Slf4j;
 import utils.CommandUtil;
 import utils.Commands;
 import utils.ShellUtil;
@@ -25,12 +25,11 @@ import utils.ShellUtil;
  * 7、重启
  * 8、验证是否正常启动
  */
+@Slf4j
 public class Pipeline {
-	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
 	private static PipelineArgument argUsernameIP;
 
 	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
-		System.out.println("=======" + gaiaArgs);
 		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 			gaiaArgs.get(2).getValue(),
 			argUsernameIP.getValue(), cmd);
@@ -38,20 +37,20 @@ public class Pipeline {
 
 	private static Handler CheckoutHandler = (gaiaArgs) -> {
 		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_checkout.sh");
-		LOGGER.info("CheckoutHandler DONE");
+		log.info("CheckoutHandler DONE");
 	};
 	private static Handler NpmBuildHandler = (gaiaArgs) -> {
 		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_build.sh");
-		LOGGER.info("NpmBuildHandler DONE");
+		log.info("NpmBuildHandler DONE");
 	};
 
 	private static Handler MvnPackageHandler = (gaiaArgs) -> {
 		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_package.sh");
-		LOGGER.info("MvnPackageHandler DONE");
+		log.info("MvnPackageHandler DONE");
 	};
 	private static Handler UploadHandler = (gaiaArgs) -> {
 		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_upload.sh");
-		LOGGER.info("UploadHandler DONE");
+		log.info("UploadHandler DONE");
 	};
 
 	private static Handler DownloadHandler = (gaiaArgs) -> {
@@ -62,26 +61,26 @@ public class Pipeline {
 		execute(gaiaArgs, Commands.DOWNLOAD_CHECK);
 
 		execute(gaiaArgs, Commands.DOWNLOAD_WAR);
-		LOGGER.info("DownloadHandler DONE");
+		log.info("DownloadHandler DONE");
 	};
 
 	private static Handler BackupHandler = (gaiaArgs) -> {
 		execute(gaiaArgs, Commands.BACKUP);
-		LOGGER.info("BackupHandler DONE");
+		log.info("BackupHandler DONE");
 	};
 
 	private static Handler ReplaceHandler = (gaiaArgs) -> {
-		LOGGER.info("ReplaceHandler DONE");
+		log.info("ReplaceHandler DONE");
 
 	};
 
 	private static Handler RestartHandler = (gaiaArgs) -> {
-		LOGGER.info("RestartHandler DONE");
+		log.info("RestartHandler DONE");
 
 	};
 
 	private static Handler CheckHandler = (gaiaArgs) -> {
-		LOGGER.info("CheckHandler DONE");
+		log.info("CheckHandler DONE");
 
 	};
 

@@ -1,14 +1,14 @@
 package utils;
 
 import java.io.File;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ShellUtil {
 
-	private static final Logger LOGGER = Logger.getLogger(ShellUtil.class.getName());
-
 	public static void exec(String cmd) throws Exception {
-		LOGGER.info("exec " + cmd);
+		log.info("exec " + cmd);
 		ProcessBuilder builder = new ProcessBuilder();
 		builder.command("sh", "-c", cmd);
 		builder.directory(new File(System.getProperty("user.home")));
@@ -17,7 +17,7 @@ public class ShellUtil {
 		process.destroy();
 		assert exitCode == 0;
 		if (exitCode != 0) {
-			LOGGER.warning("exec " + cmd + " fail!!!");
+			log.error("exec " + cmd + " fail!!!");
 			throw new RuntimeException("Exec Cmd Fail \"" + cmd + "\"");
 		}
 	}
