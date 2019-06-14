@@ -35,6 +35,10 @@ public class Pipeline {
 			argUsernameIP.getValue(), cmd);
 	}
 
+	private static Handler InitHandler = (gaiaArgs) -> {
+		LOGGER.info("选择要发布的服务器~");
+	};
+
 	private static Handler CheckoutHandler = (gaiaArgs) -> {
 		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_checkout.sh");
 		LOGGER.info("CheckoutHandler DONE");
@@ -105,12 +109,20 @@ public class Pipeline {
 		argUsernameIP.setKey("ip");
 		argUsernameIP.setDescription("输入指令执行机器（多个ip使用英文,分割）:");
 
+		PipelineJob init = new PipelineJob();
+		init.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
+		init.setTitle("初始化");
+		init.setDescription("初始化环境信息。");
+		init.setHandler(InitHandler);
+
 		//job开始
 		PipelineJob checkout = new PipelineJob();
 		checkout.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
 		checkout.setTitle("拉取代码");
 		checkout.setDescription("更新分支最新代码。");
 		checkout.setHandler(CheckoutHandler);
+
+		checkout.setDependsOn(new ArrayList<>(Arrays.asList("初始化")));
 
 		PipelineJob npmBuild = new PipelineJob();
 		npmBuild.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
@@ -171,8 +183,12 @@ public class Pipeline {
 
 		Javasdk sdk = new Javasdk();
 		try {
+			//sdk.Serve(new ArrayList(
+			//	Arrays.asList(init,checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart,
+			//	check)));
+			//just download
 			sdk.Serve(new ArrayList(
-				Arrays.asList(checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart, check)));
+				Arrays.asList(init, download, backup, replace, restart, check)));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
