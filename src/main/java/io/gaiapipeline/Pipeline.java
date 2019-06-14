@@ -9,6 +9,7 @@ import io.gaiapipeline.javasdk.InputType;
 import io.gaiapipeline.javasdk.Javasdk;
 import io.gaiapipeline.javasdk.PipelineArgument;
 import io.gaiapipeline.javasdk.PipelineJob;
+import utils.CommandResult;
 import utils.CommandUtil;
 import utils.Commands;
 
@@ -29,9 +30,14 @@ public class Pipeline {
 	private static PipelineArgument argUsernameIP;
 
 	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
-		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
-			gaiaArgs.get(2).getValue(),
-			argUsernameIP.getValue(), cmd);
+		try {
+			CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
+				gaiaArgs.get(2).getValue(),
+				argUsernameIP.getValue(), cmd);
+			LOGGER.info("result " + result);
+		} catch (Exception e) {
+			LOGGER.warning("execute Exception" + e.getCause());
+		}
 	}
 
 	private static Handler InitHandler = (gaiaArgs) -> {
