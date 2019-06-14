@@ -27,13 +27,13 @@ import utils.ShellUtil;
  */
 public class Pipeline {
 	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
-	private static String HOSTS;
+	private static PipelineArgument argUsernameIP;
 
 	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
 		System.out.println("=======" + gaiaArgs);
 		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 			gaiaArgs.get(2).getValue(),
-			HOSTS, cmd);
+			argUsernameIP.getValue(), cmd);
 	}
 
 	private static Handler CheckoutHandler = (gaiaArgs) -> {
@@ -99,14 +99,12 @@ public class Pipeline {
 		vaultCode.setType(InputType.VaultInp);
 		vaultCode.setKey("code");
 
-		PipelineArgument argUsernameIP = new PipelineArgument();
+		argUsernameIP = new PipelineArgument();
 		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
 		// for a text area or InputType.BoolInp for boolean input.
 		argUsernameIP.setType(InputType.TextFieldInp);
 		argUsernameIP.setKey("ip");
 		argUsernameIP.setDescription("输入指令执行机器（多个ip使用英文,分割）:");
-
-		HOSTS = argUsernameIP.getValue();
 
 		//job开始
 		PipelineJob checkout = new PipelineJob();
