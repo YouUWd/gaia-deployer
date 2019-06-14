@@ -41,6 +41,7 @@ public class CommandUtil {
 		CloseableHttpResponse response = httpClient.execute(
 			new HttpGet("http://" + domian + "/api/task?" + paramEncode(params) + "sign=" + sign));
 		String result = EntityUtils.toString(response.getEntity(), Consts.UTF_8);
+		log.info("result " + result);
 		CommandResult commandResult = GSON.fromJson(result, CommandResult.class);
 		return commandResult;
 	}
