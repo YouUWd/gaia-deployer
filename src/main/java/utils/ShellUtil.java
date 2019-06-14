@@ -1,14 +1,15 @@
 package utils;
 
 import java.io.File;
+import java.util.logging.Logger;
 
-import lombok.extern.log4j.Log4j;
+import com.sun.xml.internal.ws.spi.db.BindingContextFactory;
 
-@Log4j
 public class ShellUtil {
+	private static final Logger LOGGER = BindingContextFactory.LOGGER.getLogger(ShellUtil.class.getName());
 
 	public static void exec(String cmd) throws Exception {
-		log.info("exec " + cmd);
+		LOGGER.info("exec " + cmd);
 		ProcessBuilder builder = new ProcessBuilder();
 		builder.command("sh", "-c", cmd);
 		builder.directory(new File(System.getProperty("user.home")));
@@ -17,7 +18,7 @@ public class ShellUtil {
 		process.destroy();
 		assert exitCode == 0;
 		if (exitCode != 0) {
-			log.error("exec " + cmd + " fail!!!");
+			LOGGER.warning("exec " + cmd + " fail!!!");
 			throw new RuntimeException("Exec Cmd Fail \"" + cmd + "\"");
 		}
 	}
