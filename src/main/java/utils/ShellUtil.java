@@ -16,7 +16,7 @@ public class ShellUtil {
 		builder.directory(new File(System.getProperty("user.home")));
 		Process process = builder.start();
 		InputStream inputStream = process.getInputStream();
-		new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(LOGGER::info);
+		new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(line -> LOGGER.info("\t" + line));
 		int exitCode = process.waitFor();
 		process.destroy();
 		assert exitCode == 0;
