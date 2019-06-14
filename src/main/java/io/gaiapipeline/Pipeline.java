@@ -11,7 +11,6 @@ import io.gaiapipeline.javasdk.PipelineArgument;
 import io.gaiapipeline.javasdk.PipelineJob;
 import utils.CommandUtil;
 import utils.Commands;
-import utils.ShellUtil;
 
 /**
  * 代码部署工具
@@ -37,24 +36,6 @@ public class Pipeline {
 
 	private static Handler InitHandler = (gaiaArgs) -> {
 		LOGGER.info("选择要发布的服务器~");
-	};
-
-	private static Handler CheckoutHandler = (gaiaArgs) -> {
-		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_checkout.sh");
-		LOGGER.info("CheckoutHandler DONE");
-	};
-	private static Handler NpmBuildHandler = (gaiaArgs) -> {
-		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_build.sh");
-		LOGGER.info("NpmBuildHandler DONE");
-	};
-
-	private static Handler MvnPackageHandler = (gaiaArgs) -> {
-		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_package.sh");
-		LOGGER.info("MvnPackageHandler DONE");
-	};
-	private static Handler UploadHandler = (gaiaArgs) -> {
-		ShellUtil.exec("sh /home/youyou.dyy/scripts/manager_upload.sh");
-		LOGGER.info("UploadHandler DONE");
 	};
 
 	private static Handler DownloadHandler = (gaiaArgs) -> {
@@ -115,43 +96,12 @@ public class Pipeline {
 		init.setDescription("初始化环境信息。");
 		init.setHandler(InitHandler);
 
-		//job开始
-		PipelineJob checkout = new PipelineJob();
-		checkout.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
-		checkout.setTitle("拉取代码");
-		checkout.setDescription("更新分支最新代码。");
-		checkout.setHandler(CheckoutHandler);
-
-		checkout.setDependsOn(new ArrayList<>(Arrays.asList("初始化")));
-
-		PipelineJob npmBuild = new PipelineJob();
-		npmBuild.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
-		npmBuild.setTitle("编译前端");
-		npmBuild.setDescription("编译前端（npm run build）。");
-		npmBuild.setHandler(NpmBuildHandler);
-
-		npmBuild.setDependsOn(new ArrayList<>(Arrays.asList("拉取代码")));
-
-		PipelineJob mvnPackage = new PipelineJob();
-		mvnPackage.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
-		mvnPackage.setTitle("打包项目");
-		mvnPackage.setDescription("打包项目（mvn clean package）。");
-		mvnPackage.setHandler(MvnPackageHandler);
-		mvnPackage.setDependsOn(new ArrayList<>(Arrays.asList("编译前端")));
-
-		PipelineJob upload = new PipelineJob();
-		upload.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
-		upload.setTitle("上传WAR包");
-		upload.setDescription("上传WAR包到仓库。");
-		upload.setHandler(UploadHandler);
-		upload.setDependsOn(new ArrayList<>(Arrays.asList("打包项目")));
-
 		PipelineJob download = new PipelineJob();
 		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		download.setTitle("下载WAR包");
 		download.setDescription("下载WAR包到指定机器。");
 		download.setHandler(DownloadHandler);
-		download.setDependsOn(new ArrayList<>(Arrays.asList("上传WAR包")));
+		download.setDependsOn(new ArrayList<>(Arrays.asList("初始化")));
 
 		PipelineJob backup = new PipelineJob();
 		backup.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
@@ -183,10 +133,6 @@ public class Pipeline {
 
 		Javasdk sdk = new Javasdk();
 		try {
-			//sdk.Serve(new ArrayList(
-			//	Arrays.asList(init,checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart,
-			//	check)));
-			//just download
 			sdk.Serve(new ArrayList(
 				Arrays.asList(init, download, backup, replace, restart, check)));
 		} catch (Exception ex) {
