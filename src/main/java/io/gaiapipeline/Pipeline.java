@@ -103,7 +103,7 @@ public class Pipeline {
 		init.setHandler(InitHandler);
 
 		PipelineJob download = new PipelineJob();
-		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
+		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode,argUsernameIP)));
 		download.setTitle("下载WAR包");
 		download.setDescription("下载WAR包到指定机器。");
 		download.setHandler(DownloadHandler);
