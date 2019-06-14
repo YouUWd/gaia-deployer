@@ -2,9 +2,9 @@ package utils;
 
 import java.io.File;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j;
 
-@Slf4j
+@Log4j
 public class ShellUtil {
 
 	public static void exec(String cmd) throws Exception {

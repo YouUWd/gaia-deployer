@@ -8,7 +8,7 @@ import io.gaiapipeline.javasdk.InputType;
 import io.gaiapipeline.javasdk.Javasdk;
 import io.gaiapipeline.javasdk.PipelineArgument;
 import io.gaiapipeline.javasdk.PipelineJob;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j;
 import utils.CommandUtil;
 import utils.Commands;
 import utils.ShellUtil;
@@ -25,7 +25,7 @@ import utils.ShellUtil;
  * 7、重启
  * 8、验证是否正常启动
  */
-@Slf4j
+@Log4j
 public class Pipeline {
 	private static PipelineArgument argUsernameIP;
 
