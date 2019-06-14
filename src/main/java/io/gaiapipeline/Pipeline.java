@@ -108,7 +108,7 @@ public class Pipeline {
 
 		//job开始
 		PipelineJob checkout = new PipelineJob();
-		checkout.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
+		checkout.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
 		checkout.setTitle("拉取代码");
 		checkout.setDescription("更新分支最新代码。");
 		checkout.setHandler(CheckoutHandler);
@@ -119,47 +119,56 @@ public class Pipeline {
 		npmBuild.setDescription("编译前端（npm run build）。");
 		npmBuild.setHandler(NpmBuildHandler);
 
+		npmBuild.setDependsOn(new ArrayList<>(Arrays.asList("拉取代码")));
+
 		PipelineJob mvnPackage = new PipelineJob();
 		mvnPackage.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		mvnPackage.setTitle("打包项目");
 		mvnPackage.setDescription("打包项目（mvn clean package）。");
 		mvnPackage.setHandler(MvnPackageHandler);
+		mvnPackage.setDependsOn(new ArrayList<>(Arrays.asList("编译前端")));
 
 		PipelineJob upload = new PipelineJob();
 		upload.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		upload.setTitle("上传WAR包");
 		upload.setDescription("上传WAR包到仓库。");
 		upload.setHandler(UploadHandler);
+		upload.setDependsOn(new ArrayList<>(Arrays.asList("打包项目")));
 
 		PipelineJob download = new PipelineJob();
 		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		download.setTitle("下载WAR包");
 		download.setDescription("下载WAR包到指定机器。");
 		download.setHandler(DownloadHandler);
+		download.setDependsOn(new ArrayList<>(Arrays.asList("上传WAR包")));
 
 		PipelineJob backup = new PipelineJob();
 		backup.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		backup.setTitle("备份代码");
 		backup.setDescription("备份当前环境的运行代码。");
 		backup.setHandler(BackupHandler);
+		backup.setDependsOn(new ArrayList<>(Arrays.asList("下载WAR包")));
 
 		PipelineJob replace = new PipelineJob();
 		replace.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		replace.setTitle("更新代码");
 		replace.setDescription("更新当前机器运行的代码。");
 		replace.setHandler(ReplaceHandler);
+		replace.setDependsOn(new ArrayList<>(Arrays.asList("备份代码")));
 
 		PipelineJob restart = new PipelineJob();
 		restart.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		restart.setTitle("重启服务器");
 		restart.setDescription("重启服务器，加载最新代码。");
 		restart.setHandler(RestartHandler);
+		restart.setDependsOn(new ArrayList<>(Arrays.asList("更新代码")));
 
 		PipelineJob check = new PipelineJob();
 		check.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		check.setTitle("检查发布情况");
 		check.setDescription("检查代码是否成功发布。");
 		check.setHandler(CheckHandler);
+		check.setDependsOn(new ArrayList<>(Arrays.asList("重启服务器")));
 
 		Javasdk sdk = new Javasdk();
 		try {
