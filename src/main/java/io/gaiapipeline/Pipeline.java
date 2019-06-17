@@ -9,8 +9,10 @@ import io.gaiapipeline.javasdk.InputType;
 import io.gaiapipeline.javasdk.Javasdk;
 import io.gaiapipeline.javasdk.PipelineArgument;
 import io.gaiapipeline.javasdk.PipelineJob;
+import utils.CommandResult;
 import utils.CommandUtil;
 import utils.Commands;
+import utils.DeployHolder;
 import utils.ShellUtil;
 
 /**
@@ -27,16 +29,21 @@ import utils.ShellUtil;
  */
 public class Pipeline {
 	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
-	private static PipelineArgument argUsernameIP;
 
-	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
-		CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
+	private static DeployHolder deployHolder = new DeployHolder();
+
+	private static CommandResult execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
+		CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 			gaiaArgs.get(2).getValue(),
-			argUsernameIP.getValue(), cmd);
+			deployHolder.getIps(), cmd);
+		LOGGER.info("result " + result);
+		return result;
 	}
 
 	private static Handler InitHandler = (gaiaArgs) -> {
-		LOGGER.info("选择要发布的服务器~");
+		LOGGER.info(
+			"==============================================选择要发布的服务器======================================");
+		deployHolder.setIps(gaiaArgs.get(3).getValue());
 	};
 
 	private static Handler CheckoutHandler = (gaiaArgs) -> {
@@ -58,34 +65,58 @@ public class Pipeline {
 	};
 
 	private static Handler DownloadHandler = (gaiaArgs) -> {
+		LOGGER.info(
+			"==============================================下载代码======================================");
 		execute(gaiaArgs, Commands.DOWNLOAD_BACKUP);
 
 		execute(gaiaArgs, Commands.DOWNLOAD_DEPLOY);
 
+		execute(gaiaArgs, Commands.DOWNLOAD_RESTART);
+
 		execute(gaiaArgs, Commands.DOWNLOAD_CHECK);
 
 		execute(gaiaArgs, Commands.DOWNLOAD_WAR);
-		LOGGER.info("DownloadHandler DONE");
+		LOGGER.info(
+			"==============================================下载代码完成======================================");
+
 	};
 
 	private static Handler BackupHandler = (gaiaArgs) -> {
+		LOGGER.info(
+			"==============================================备份======================================");
 		execute(gaiaArgs, Commands.BACKUP);
 		LOGGER.info("BackupHandler DONE");
+		LOGGER.info(
+			"==============================================备份完成======================================");
 	};
 
 	private static Handler ReplaceHandler = (gaiaArgs) -> {
-		LOGGER.info("ReplaceHandler DONE");
-
+		LOGGER.info(
+			"==============================================代码替换======================================");
+		//execute(gaiaArgs, Commands.DEPLOY);
+		LOGGER.info(
+			"==============================================代码替换完成======================================");
 	};
 
 	private static Handler RestartHandler = (gaiaArgs) -> {
-		LOGGER.info("RestartHandler DONE");
-
+		LOGGER.info(
+			"==============================================重启======================================");
+		execute(gaiaArgs, Commands.RESART);
+		LOGGER.info(
+			"==============================================重启完成======================================");
 	};
 
 	private static Handler CheckHandler = (gaiaArgs) -> {
-		LOGGER.info("CheckHandler DONE");
-
+		LOGGER.info(
+			"==============================================校验======================================");
+		CommandResult result = execute(gaiaArgs, Commands.CHECK);
+		if (result.isSUCCESS() && result.getJOBRESULT().contains("Oook!")) {
+			LOGGER.info(
+				"==============================================校验成功======================================");
+		} else {
+			LOGGER.info(
+				"==============================================校验失败======================================");
+		}
 	};
 
 	public static void main(String[] args) {
@@ -102,7 +133,7 @@ public class Pipeline {
 		vaultCode.setType(InputType.VaultInp);
 		vaultCode.setKey("code");
 
-		argUsernameIP = new PipelineArgument();
+		PipelineArgument argUsernameIP = new PipelineArgument();
 		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
 		// for a text area or InputType.BoolInp for boolean input.
 		argUsernameIP.setType(InputType.TextFieldInp);
@@ -115,7 +146,6 @@ public class Pipeline {
 		init.setDescription("初始化环境信息。");
 		init.setHandler(InitHandler);
 
-		//job开始
 		PipelineJob checkout = new PipelineJob();
 		checkout.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode, argUsernameIP)));
 		checkout.setTitle("拉取代码");
@@ -183,12 +213,9 @@ public class Pipeline {
 
 		Javasdk sdk = new Javasdk();
 		try {
-			//sdk.Serve(new ArrayList(
-			//	Arrays.asList(init,checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart,
-			//	check)));
-			//just download
 			sdk.Serve(new ArrayList(
-				Arrays.asList(init, download, backup, replace, restart, check)));
+				Arrays.asList(init, checkout, npmBuild, mvnPackage, upload, download, backup, replace, restart,
+					check)));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

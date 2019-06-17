@@ -41,8 +41,13 @@ public class CommandUtil {
 		CloseableHttpResponse response = httpClient.execute(
 			new HttpGet("http://" + domian + "/api/task?" + paramEncode(params) + "sign=" + sign));
 		String result = EntityUtils.toString(response.getEntity(), Consts.UTF_8);
-		CommandResult commandResult = GSON.fromJson(result, CommandResult.class);
-		return commandResult;
+		log.info("result " + result);
+		if (result.contains("\"SUCCESS\":true")) {
+			CommandResult commandResult = GSON.fromJson(result, CommandResult.class);
+			return commandResult;
+		} else {
+			throw new RuntimeException("exec command fail: " + cmd);
+		}
 	}
 
 	public static String paramEncode(Map<String, String> params) {
