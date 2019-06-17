@@ -43,11 +43,12 @@ public class Pipeline {
 	}
 
 	private static Handler InitHandler = (gaiaArgs) -> {
-		LOGGER.info("选择要发布的服务器~");
+		LOGGER.info("==========================选择要发布的服务器==========================");
 		deployHolder.setIps(gaiaArgs.get(3).getValue());
 	};
 
 	private static Handler DownloadHandler = (gaiaArgs) -> {
+		LOGGER.info("==========================下载代码==========================");
 		execute(gaiaArgs, Commands.DOWNLOAD_BACKUP);
 
 		execute(gaiaArgs, Commands.DOWNLOAD_DEPLOY);
@@ -59,21 +60,25 @@ public class Pipeline {
 	};
 
 	private static Handler BackupHandler = (gaiaArgs) -> {
+		LOGGER.info("==========================备份==========================");
 		execute(gaiaArgs, Commands.BACKUP);
 		LOGGER.info("BackupHandler DONE");
 	};
 
 	private static Handler ReplaceHandler = (gaiaArgs) -> {
+		LOGGER.info("==========================代码替换==========================");
 		LOGGER.info("ReplaceHandler DONE");
 
 	};
 
 	private static Handler RestartHandler = (gaiaArgs) -> {
+		LOGGER.info("==========================重启==========================");
 		LOGGER.info("RestartHandler DONE");
 
 	};
 
 	private static Handler CheckHandler = (gaiaArgs) -> {
+		LOGGER.info("==========================校验==========================");
 		LOGGER.info("CheckHandler DONE");
 
 	};
