@@ -12,6 +12,7 @@ import io.gaiapipeline.javasdk.PipelineJob;
 import utils.CommandResult;
 import utils.CommandUtil;
 import utils.Commands;
+import utils.DeployHolder;
 
 /**
  * 代码部署工具
@@ -27,13 +28,14 @@ import utils.Commands;
  */
 public class Pipeline {
 	private static final Logger LOGGER = Logger.getLogger(Pipeline.class.getName());
-	private static PipelineArgument argUsernameIP;
 
-	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
+	private static DeployHolder deployHolder = new DeployHolder();
+
+	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) {
 		try {
 			CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
 				gaiaArgs.get(2).getValue(),
-				argUsernameIP.getValue(), cmd);
+				deployHolder.getIps(), cmd);
 			LOGGER.info("result " + result);
 		} catch (Exception e) {
 			LOGGER.warning("execute Exception" + e.getCause());
@@ -42,6 +44,7 @@ public class Pipeline {
 
 	private static Handler InitHandler = (gaiaArgs) -> {
 		LOGGER.info("选择要发布的服务器~");
+		deployHolder.setIps(gaiaArgs.get(3).getValue());
 	};
 
 	private static Handler DownloadHandler = (gaiaArgs) -> {
@@ -89,7 +92,7 @@ public class Pipeline {
 		vaultCode.setType(InputType.VaultInp);
 		vaultCode.setKey("code");
 
-		argUsernameIP = new PipelineArgument();
+		PipelineArgument argUsernameIP = new PipelineArgument();
 		// Instead of InputType.TextFieldInp you can also use InputType.TextAreaInp
 		// for a text area or InputType.BoolInp for boolean input.
 		argUsernameIP.setType(InputType.TextFieldInp);
@@ -103,7 +106,7 @@ public class Pipeline {
 		init.setHandler(InitHandler);
 
 		PipelineJob download = new PipelineJob();
-		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode,argUsernameIP)));
+		download.setArgs(new ArrayList(Arrays.asList(vaultDomain, vaultKey, vaultCode)));
 		download.setTitle("下载WAR包");
 		download.setDescription("下载WAR包到指定机器。");
 		download.setHandler(DownloadHandler);
