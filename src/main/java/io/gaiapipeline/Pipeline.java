@@ -31,56 +31,73 @@ public class Pipeline {
 
 	private static DeployHolder deployHolder = new DeployHolder();
 
-	private static void execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) {
-		try {
-			CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
-				gaiaArgs.get(2).getValue(),
-				deployHolder.getIps(), cmd);
-			LOGGER.info("result " + result);
-		} catch (Exception e) {
-			LOGGER.warning("execute Exception" + e.getCause());
-		}
+	private static CommandResult execute(ArrayList<PipelineArgument> gaiaArgs, String cmd) throws Exception {
+		CommandResult result = CommandUtil.exec(gaiaArgs.get(0).getValue(), gaiaArgs.get(1).getValue(),
+			gaiaArgs.get(2).getValue(),
+			deployHolder.getIps(), cmd);
+		LOGGER.info("result " + result);
+		return result;
 	}
 
 	private static Handler InitHandler = (gaiaArgs) -> {
-		LOGGER.info("==========================选择要发布的服务器==========================");
+		LOGGER.info(
+			"====================================================选择要发布的服务器====================================================");
 		deployHolder.setIps(gaiaArgs.get(3).getValue());
 	};
 
 	private static Handler DownloadHandler = (gaiaArgs) -> {
-		LOGGER.info("==========================下载代码==========================");
+		LOGGER.info(
+			"====================================================下载代码====================================================");
 		execute(gaiaArgs, Commands.DOWNLOAD_BACKUP);
 
 		execute(gaiaArgs, Commands.DOWNLOAD_DEPLOY);
 
+		execute(gaiaArgs, Commands.DOWNLOAD_RESTART);
+
 		execute(gaiaArgs, Commands.DOWNLOAD_CHECK);
 
 		execute(gaiaArgs, Commands.DOWNLOAD_WAR);
-		LOGGER.info("DownloadHandler DONE");
+		LOGGER.info(
+			"====================================================下载代码完成====================================================");
+
 	};
 
 	private static Handler BackupHandler = (gaiaArgs) -> {
-		LOGGER.info("==========================备份==========================");
+		LOGGER.info(
+			"====================================================备份====================================================");
 		execute(gaiaArgs, Commands.BACKUP);
 		LOGGER.info("BackupHandler DONE");
+		LOGGER.info(
+			"====================================================备份完成====================================================");
 	};
 
 	private static Handler ReplaceHandler = (gaiaArgs) -> {
-		LOGGER.info("==========================代码替换==========================");
-		LOGGER.info("ReplaceHandler DONE");
-
+		LOGGER.info(
+			"====================================================代码替换====================================================");
+		//execute(gaiaArgs, Commands.DEPLOY);
+		LOGGER.info(
+			"====================================================代码替换完成====================================================");
 	};
 
 	private static Handler RestartHandler = (gaiaArgs) -> {
-		LOGGER.info("==========================重启==========================");
-		LOGGER.info("RestartHandler DONE");
-
+		LOGGER.info(
+			"====================================================重启====================================================");
+		execute(gaiaArgs, Commands.RESART);
+		LOGGER.info(
+			"====================================================重启完成====================================================");
 	};
 
 	private static Handler CheckHandler = (gaiaArgs) -> {
-		LOGGER.info("==========================校验==========================");
-		LOGGER.info("CheckHandler DONE");
-
+		LOGGER.info(
+			"====================================================校验====================================================");
+		CommandResult result = execute(gaiaArgs, Commands.CHECK);
+		if (result.isSUCCESS() && result.getJOBRESULT().contains("Oook!")) {
+			LOGGER.info(
+				"====================================================校验成功====================================================");
+		} else {
+			LOGGER.info(
+				"====================================================校验失败====================================================");
+		}
 	};
 
 	public static void main(String[] args) {
