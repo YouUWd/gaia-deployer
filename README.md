@@ -2,9 +2,11 @@
 Java Example Gaia Pipeline
 
 # 参考文档
-[开发](https://github.com/gaia-pipeline/java-example) 
+[代码样例](https://github.com/gaia-pipeline/java-example) 
 
-[引擎](https://docs.gaia-pipeline.io/getting-started/)
+[开发文档](https://docs.gaia-pipeline.io/getting-started/)
+
+[引擎](https://github.com/gaia-pipeline/gaia)
 
 ## 参考界面
 ![index](https://github.com/YouUWd/gaia-deployer/blob/master/images/index.jpg)
