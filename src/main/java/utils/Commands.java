@@ -8,7 +8,7 @@ public interface Commands {
 		= "osscmd get oss://drds-manager-project-repo/drds-manager/manager_deploy.sh /home/admin/auto_deploy/manager_deploy.sh";
 
 	String DOWNLOAD_RESTART
-		= "osscmd get oss://drds-manager-project-repo/drds-manager/manager_deploy.sh /home/admin/auto_deploy/manager_restart.sh";
+		= "osscmd get oss://drds-manager-project-repo/drds-manager/manager_restart.sh /home/admin/auto_deploy/manager_restart.sh";
 
 	String DOWNLOAD_CHECK
 		= "osscmd get oss://drds-manager-project-repo/drds-manager/manager_check.sh /home/admin/auto_deploy/manager_check.sh";
